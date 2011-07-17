@@ -1,0 +1,6 @@
+#!/usr/bin/ruby
+
+require 'lib/icb.rb'
+
+Cranberry::ICB::run({})
+
