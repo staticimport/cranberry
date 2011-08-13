@@ -3,9 +3,11 @@ require 'lib/util/regexp_utils.rb'
 
 module Cranberry
   # Definitions
-  KEYWORDS = ['and','catch','class','elsif','false','if','next','nil','not','or','self','super','true','unless','until','while','yield']
+  KEYWORDS = ['and','catch','class','def''elsif','false','if','next','nil',
+              'not','or','self','super','true','unless','until','while',
+              'yield']
   OPERATORS = ['+','-','*','/','=','==','<','<=','>','>=','<=>','(',
-               ')','[',']','.','->']
+               ')','[',']','.','->','#']
 
   # Sortings
   KEYWORDS_ASCENDING_LENGTH = KEYWORDS.sort{|a,b| -a.length <=> -b.length}

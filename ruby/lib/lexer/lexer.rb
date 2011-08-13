@@ -17,14 +17,15 @@ module Cranberry
           return match_made($1, :integral)
         elsif @line =~ OPERATORS_REGEXP
           return match_made($1, :operator)
-        elsif @line =~ /(@{0,2}[A-Za-z_][A-Za-z_0-9]*\??)/
+        elsif @line =~ /^(@{0,2}[A-Za-z_][A-Za-z_0-9]*\??)/
           match = $1
-          puts "Match: #{match}"
           if KEYWORDS.include?(match)
             return match_made(match, :keyword)
           else
             return match_made(match, :name)
           end
+        elsif @line =~ /^("[^"]*")/ # TODO: much too simple
+          return match_made($1, :string)
         else
           raise "Unable to parse: #{@line}"
         end
