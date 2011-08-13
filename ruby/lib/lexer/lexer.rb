@@ -1,4 +1,5 @@
 
+require 'lib/common/defs.rb'
 require 'lib/lexer/token.rb'
 
 module Cranberry
@@ -14,8 +15,16 @@ module Cranberry
           return match_made($1, :floating)
         elsif @line =~ /^(\d+)/
           return match_made($1, :integral)
-        elsif @line =~ /^([\+\-\*\/])/
+        elsif @line =~ OPERATORS_REGEXP
           return match_made($1, :operator)
+        elsif @line =~ /(@{0,2}[A-Za-z_][A-Za-z_0-9]*\??)/
+          match = $1
+          puts "Match: #{match}"
+          if KEYWORDS.include?(match)
+            return match_made(match, :keyword)
+          else
+            return match_made(match, :name)
+          end
         else
           raise "Unable to parse: #{@line}"
         end
