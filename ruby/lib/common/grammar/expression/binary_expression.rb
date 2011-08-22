@@ -4,8 +4,9 @@ require 'lib/common/grammar/expression.rb'
 module Cranberry
   class BinaryExpression < Expression
     attr_accessor :left, :right, :operator
-    def initialize(type, left, right, operator)
-      super(type)
+    def initialize(expr_type, left, right, operator)
+      super(expr_type)
+      raise "Left and Right types should match" unless @left.type == @right.type
       @left = left
       @right = right
       @operator = operator
@@ -13,6 +14,10 @@ module Cranberry
 
     def to_cpp
       "#{@left.to_cpp} #{@operator} #{@right.to_cpp}"
+    end
+
+    def type
+      @left.type
     end
   end
 
@@ -55,6 +60,18 @@ module Cranberry
   class XorExpression < BinaryExpression
     def initialize(left, right)
       super(:xor_expression, left, right, 'xor')
+    end
+  end
+
+  class IsEqualExpression < BinaryExpression
+    def initialize(left, right)
+      super(:isequal_expression, left, right, '==')
+    end
+  end
+
+  class AssignExpression < BinaryExpression
+    def initialize(left, right)
+      super(:assign_expression, left, right, '=')
     end
   end
 end
