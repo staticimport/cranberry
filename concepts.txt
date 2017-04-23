@@ -1,0 +1,51 @@
+
+types: i08, i16, i32, i64, f64, chr, str(ing), y/n for boolean?
+
+function is fcn, e.g fcn foo(i32 x): str
+
+def MyType:
+  create(i32 x);
+  destroy(); # optional
+  do_something(str s): f64;
+end
+
+
+fcn MyType:create(i32 x)
+  @x = x
+  @y: f64? = nil
+end
+
+fcn MyType:destroy()
+  put "nothing to do"
+end
+
+fcn MyType:do_something(str s): f64
+  return s == "foo" ? 1.0 : 2.0;
+end
+
+testing/mocking is first class concept
+-> simple to intercept any fcn call
+-> mock fcn, def compiler-generated
+-> no runtime overhead
+
+interfaces very simple, clean
+inf MyTypeListener:
+  on_create(MyType*);
+end
+
+def CustomListener[MyTypeListener,AnotherInt]
+  on_create(MyType*);
+end
+
+value vs pointer semantics preserved, not hidden
+built-in optional support for optionals, ? after type
+-> is it possible to enforce pointer being set by not marking it optional?
+-> only ? type can be set to NULL?
+
+fcn name can end in ?, e.g fcn str:empty?(), must return y/n
+
+reference counting GC
+-> weak references to avoid circular deps?
+-> ptr[MyType] vs PTR[MyType]? wpt[MyType] vs spt[MyType]? * vs &?
+-> destroy() always implicitly destroys pointers, decrementing ref count if strong
+-> @x: PTR[MyType] = x implictly bumps ref count
