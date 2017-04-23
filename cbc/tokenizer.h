@@ -40,7 +40,7 @@ bool cbc_tokenizer_next(struct cbc_tokenizer*, struct cbc_token* out);
 void cbc_tokenizer_init(struct cbc_tokenizer* tz)
 {
   tz->file_reader = NULL;
-  tz->buffer      = malloc(CBC_MAX_TOKEN_LEN);
+  tz->buffer      = (char*)malloc(CBC_MAX_TOKEN_LEN);
 }
 
 void cbc_tokenizer_uninit(struct cbc_tokenizer* tz)

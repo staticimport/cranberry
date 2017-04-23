@@ -27,7 +27,7 @@ void cbc_file_reader_retreat(struct cbc_file_reader*);
 void cbc_file_reader_init(struct cbc_file_reader* fr)
 {
   fr->file    = NULL;
-  fr->buffer  = malloc(CBC_FILE_READER_BUFLEN);
+  fr->buffer  = (char*)malloc(CBC_FILE_READER_BUFLEN);
   fr->head    = fr->buffer;
   fr->tail    = fr->buffer;
 }

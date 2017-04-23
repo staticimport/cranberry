@@ -13,5 +13,19 @@ set -e
 rm -rf bin/
 mkdir -p bin/
 
+# cbc
+echo "cbc..."
 $CC $INCLUDES $MISC $OPTIMIZATION $WARNS cbc/cbc.c -o bin/cbc
+
+# gtests
+echo "gtests..."
+GTEST_INCLUDES="-Igtests/googletest/include"
+GTEST_LINKS="-Lgtests/googletest -lgtest-1.8.0"
+GTEST_TEMP_MASTERFILE='gtests/.temp_masterfile.cpp'
+rm -f $GTEST_TEMP_MASTERFILE
+for file in gtests/*.hpp gtests/*.cpp; do
+  echo "#include \"${file}\"" >> $GTEST_TEMP_MASTERFILE;
+done
+$CPP $INCLUDES $GTEST_INCLUDES -fno-permissive -D_GNU_SOURCE -std=gnu++11 -g $OPTIMIZATION $GTEST_TEMP_MASTERFILE $GTEST_LINKS -o bin/gtests
+./bin/gtests
 
