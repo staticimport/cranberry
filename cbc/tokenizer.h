@@ -114,6 +114,7 @@ void cbc_tokenizer_next_operator(struct cbc_tokenizer* tz, struct cbc_token* out
   out->text     = tz->buffer;
   out->textlen  = (int)(tail - tz->buffer);
   out->type     = CBC_TOKEN_OPERATOR;
+  DEBUG_ASSERT(out->textlen > 0);
 }
 
 void cbc_tokenizer_skip_line_comment(struct cbc_tokenizer* tz)
@@ -136,7 +137,7 @@ next: // <-- used for comments
   c = '?'; 
   while (true) {
     peek_ok = cbc_file_reader_peek(tz->file_reader, &c);
-    if (peek_ok & isspace(c)) 
+    if (peek_ok & (isspace(c) != 0))
     { 
       cbc_file_reader_pop(tz->file_reader);
       if (c == '\n') { CURRENT_LINENUM += 1; CURRENT_COLNUM = 1; }
@@ -145,6 +146,7 @@ next: // <-- used for comments
     else { break; }
   }
   if (!peek_ok) { return false; }
+  DEBUG_ASSERT(!isspace(c));
   
   // first char should dictate token type
   if (isalpha(c) | (c == '@') | (c == '$')) { cbc_tokenizer_next_identifier(tz, out); }

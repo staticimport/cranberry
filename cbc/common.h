@@ -16,6 +16,10 @@
           } \
         } while (false) 
 
+#ifndef NDEBUG
+#define DEBUG_ASSERT(...) ASSERT(__VA_ARGS__)
+#endif
+
 #define BZERO(ptr) memset(ptr, 0, sizeof(*(ptr)))
 
 #define CONST_FCN __attribute__((const))
