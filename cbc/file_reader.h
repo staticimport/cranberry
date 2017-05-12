@@ -41,6 +41,7 @@ void cbc_file_reader_unload(struct cbc_file_reader* fr)
 void cbc_file_reader_uninit(struct cbc_file_reader* fr)
 {
   cbc_file_reader_unload(fr);
+  free(fr->buffer);
 }
 
 void cbc_file_reader_load(struct cbc_file_reader* fr, char const* filename)

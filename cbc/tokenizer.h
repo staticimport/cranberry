@@ -73,7 +73,9 @@ void cbc_tokenizer_next_number(struct cbc_tokenizer* tz, struct cbc_token* out)
 {
   char c; char* tail = tz->buffer;
   cbc_file_reader_peek_and_pop(tz->file_reader, tail++);
-  while (cbc_file_reader_peek(tz->file_reader, &c) and (cbc_isnum(c) | (c == '_')))
+  while (cbc_file_reader_peek(tz->file_reader, &c) and 
+        (cbc_isnum(c) | (c == 'e') | (c == 'x') | (c == '.') | (c == '-') |
+        ((c >= 'a') & (c <= 'f')) | ((c >= 'A') & (c <= 'F'))))
   {
     *(tail++) = c;
     cbc_file_reader_pop(tz->file_reader);
