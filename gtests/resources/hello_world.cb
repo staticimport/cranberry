@@ -1,0 +1,6 @@
+
+fcn main(str[]): int
+  stdout.println("Hello, World!")
+  ret 0
+end
+

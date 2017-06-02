@@ -1,0 +1,46 @@
+
+file->
+. function_decl*
+. function_def*
+
+function_decl->
+. arg_list
+. return_type
+
+function_def->
+. arg_list
+. return_type
+. statement_block
+
+statement_block->
+. statement*
+
+arg_list->
+. arg*
+
+arg->
+. optional_name
+. type
+
+statement->
+. var_assignment*
+. function_call*
+. if-block (or unless)
+. while-block (or until)
+. for-block
+. return?
+
+var_assignment->
+. name
+. optional_type
+. expression
+
+function_call->
+. function_name
+. expession*
+
+expression->
+. name*
+. operator*
+. function_call*
+

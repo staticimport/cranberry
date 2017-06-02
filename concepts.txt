@@ -1,26 +1,27 @@
 
-types: i08, i16, i32, i64, f64, chr, str(ing), y/n for boolean? or just int and flt, 64 only?
+types: int, flt, chr, str(ing), y/n for boolean?
 
 function is fcn, e.g fcn foo(i32 x): str
 
 def MyType:
-  create(i32 x);
+  create(x: int);
   destroy(); # optional
-  do_something(str s): f64;
+  do_something(str): flt
 end
 
+> in declaration, param name is optional.  same if unused argument in def
 
-fcn MyType:create(i32 x)
+fcn MyType:create(x: int)
   @x = x
-  @y: f64? = nil
+  @y: flt? = nil
 end
 
 fcn MyType:destroy()
   put "nothing to do"
 end
 
-fcn MyType:do_something(str s): f64
-  return s == "foo" ? 1.0 : 2.0;
+fcn MyType:do_something(s: str): flt
+  return s == "foo" ? 1.0 : 2.0; # something better for ternary?
 end
 
 testing/mocking is first class concept
@@ -47,5 +48,8 @@ fcn name can end in ?, e.g fcn str:empty?(), must return y/n
 reference counting GC
 -> weak references to avoid circular deps?
 -> ptr[MyType] vs PTR[MyType]? wpt[MyType] vs spt[MyType]? * vs &?
--> destroy() always implicitly destroys pointers, decrementing ref count if strong
--> @x: PTR[MyType] = x implictly bumps ref count
+-> destroy() always implicitly destroys pointers? or make everything explicit?, decrementing ref count if strong
+-> @x: PTR[MyType] = x implictly? bumps ref count
+
+optionally can specify function variables by name for readability, but maybe in expected order?
+

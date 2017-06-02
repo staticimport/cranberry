@@ -88,3 +88,16 @@ TEST_F(TokenizerTest, Strings)
   ExpectToken("\"#\\\"$\"", CBC_TOKEN_STRING);
   ExpectNoMoreTokens();
 }
+
+TEST_F(TokenizerTest, Operators)
+{
+  cbc_file_reader_load(&mFileReader, "gtests/resources/tokenizer_gtest_operators.txt");
+  cbc_tokenizer_start(&mTokenizer, &mFileReader);
+  ExpectToken("+", CBC_TOKEN_OPERATOR);
+  ExpectToken("--", CBC_TOKEN_OPERATOR);
+  ExpectToken("*()!.", CBC_TOKEN_OPERATOR); // do not validate here that operators are valid
+  ExpectToken("[", CBC_TOKEN_OPERATOR);
+  ExpectToken("+=", CBC_TOKEN_OPERATOR);
+  ExpectNoMoreTokens();
+}
+
