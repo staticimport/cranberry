@@ -22,25 +22,30 @@ struct cbc_token
 struct cbc_tokenizer
 {
   struct cbc_file_reader* file_reader;
-  char* buffer;
-  int   next_colnum;
+  char*  buffer;
+  int    next_colnum;
+  struct cbc_token token;
+  bool   has_retreated;
 };
 
 
 
 /* Functionality */
-void cbc_tokenizer_init(struct cbc_tokenizer*);
-void cbc_tokenizer_uninit(struct cbc_tokenizer*);
-void cbc_tokenizer_start(struct cbc_tokenizer*, struct cbc_file_reader*);
-bool cbc_tokenizer_next(struct cbc_tokenizer*, struct cbc_token* out);
+void    cbc_tokenizer_init(struct cbc_tokenizer*);
+void    cbc_tokenizer_uninit(struct cbc_tokenizer*);
+void    cbc_tokenizer_start(struct cbc_tokenizer*, struct cbc_file_reader*);
+struct  cbc_token* cbc_tokenizer_next(struct cbc_tokenizer*);
+struct  cbc_token* cbc_tokenizer_next_or_die(struct cbc_tokenizer*, char const* error_msg);
+void    cbc_tokenizer_retreat(struct cbc_tokenizer*);
 
 
 /* Implementation */
 #define CBC_MAX_TOKEN_LEN 8192
 void cbc_tokenizer_init(struct cbc_tokenizer* tz)
 {
-  tz->file_reader = NULL;
-  tz->buffer      = (char*)malloc(CBC_MAX_TOKEN_LEN);
+  tz->file_reader   = NULL;
+  tz->buffer        = (char*)malloc(CBC_MAX_TOKEN_LEN);
+  tz->has_retreated = false;
 }
 
 void cbc_tokenizer_uninit(struct cbc_tokenizer* tz)
@@ -50,8 +55,9 @@ void cbc_tokenizer_uninit(struct cbc_tokenizer* tz)
 
 void cbc_tokenizer_start(struct cbc_tokenizer* tz, struct cbc_file_reader* file_reader)
 {
-  tz->file_reader = file_reader;
-  tz->next_colnum = 1;
+  tz->file_reader   = file_reader;
+  tz->next_colnum   = 1;
+  tz->has_retreated = false;
 }
 
 void cbc_tokenizer_next_identifier(struct cbc_tokenizer* tz, struct cbc_token* out)
@@ -129,8 +135,12 @@ void cbc_tokenizer_skip_line_comment(struct cbc_tokenizer* tz)
   }
 }
 
-bool cbc_tokenizer_next(struct cbc_tokenizer* tz, struct cbc_token* out)
+struct cbc_token* cbc_tokenizer_next(struct cbc_tokenizer* tz)
 {
+  bool const previously_retreated = tz->has_retreated;
+  tz->has_retreated = false;
+  if (previously_retreated) { return &tz->token; }
+
   char c; bool peek_ok;
   CURRENT_COLNUM = tz->next_colnum;
 
@@ -147,16 +157,29 @@ next: // <-- used for comments
     }
     else { break; }
   }
-  if (!peek_ok) { return false; }
+  if (!peek_ok) { return NULL; }
   DEBUG_ASSERT(!isspace(c));
   
   // first char should dictate token type
-  if (isalpha(c) | (c == '@') | (c == '$')) { cbc_tokenizer_next_identifier(tz, out); }
-  else if (cbc_isnum(c))                    { cbc_tokenizer_next_number(tz, out); }
-  else if ((c == '"') | (c == '\''))        { cbc_tokenizer_next_string(tz, out); }
+  if (isalpha(c) | (c == '@') | (c == '$')) { cbc_tokenizer_next_identifier(tz, &tz->token); }
+  else if (cbc_isnum(c))                    { cbc_tokenizer_next_number(tz, &tz->token); }
+  else if ((c == '"') | (c == '\''))        { cbc_tokenizer_next_string(tz, &tz->token); }
   else if (c == '#')                        { cbc_tokenizer_skip_line_comment(tz); goto next; }
-  else                                      { cbc_tokenizer_next_operator(tz, out); }
-  tz->next_colnum = CURRENT_COLNUM + out->textlen;
-  return true;
+  else                                      { cbc_tokenizer_next_operator(tz, &tz->token); }
+  tz->next_colnum = CURRENT_COLNUM + tz->token.textlen;
+  return &tz->token;
+}
+
+struct cbc_token* cbc_tokenizer_next_or_die(struct cbc_tokenizer* tz, char const* error_msg)
+{
+  struct cbc_token* const t = cbc_tokenizer_next(tz);
+  ASSERT(t != NULL, error_msg);
+  return t;
+}
+
+void cbc_tokenizer_retreat(struct cbc_tokenizer* tz)
+{
+  ASSERT(!tz->has_retreated, "cannot retreat tokenizer repeatedly");
+  tz->has_retreated = true;
 }
 

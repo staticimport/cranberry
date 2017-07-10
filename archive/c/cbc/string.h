@@ -39,4 +39,8 @@ void cbc_string_destroy(struct cbc_string s)
   if (!s.is_local) { free(s.data.ptr); }
 }
 
-char* cbc_str2cstr(struct cbc_string s);
+char* cbc_str2cstr(struct cbc_string s)
+{
+  return s.is_local ? s.data.local : s.data.ptr;
+}
+
