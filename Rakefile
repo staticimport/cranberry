@@ -1,5 +1,3 @@
-require 'simplecov'
-SimpleCov.start
 
 require 'rake/clean'
 require 'rake/testtask'

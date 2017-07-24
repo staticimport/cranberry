@@ -1,0 +1,6 @@
+
+fcn main(argv: arr{str}): int
+  say("Hello, World!)
+  ret 0
+end
+
