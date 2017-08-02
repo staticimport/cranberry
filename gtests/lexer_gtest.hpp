@@ -17,6 +17,16 @@ protected:
     EXPECT_EQ(line, t->mLineNum);
     EXPECT_EQ(col,  t->mColumn);
   }
+
+  void AssertTextToken(TokenStream& stream, std::string const& text, TokenType type, int line, int col)
+  {
+    Token const* t = stream.Peek();
+    ASSERT_NE(nullptr, t); stream.Pop();
+    EXPECT_EQ(type, t->mType);
+    EXPECT_EQ(text, t->mText);
+    EXPECT_EQ(line, t->mLineNum);
+    EXPECT_EQ(col,  t->mColumn);
+  }
 };
 
 TEST_F(LexerTest, Empty)
@@ -77,6 +87,14 @@ TEST_F(LexerTest, Dot)
   TokenStream ts = Lexer().Lex(cs);
   AssertOpToken(ts, TokenType::DOT, 1, 1);
   AssertOpToken(ts, TokenType::DOT, 1, 2);
+  ASSERT_EQ(nullptr, ts.Peek());
+}
+
+TEST_F(LexerTest, Pound)
+{
+  CharStream cs("#+kjolkja\n.");
+  TokenStream ts = Lexer().Lex(cs);
+  AssertOpToken(ts, TokenType::DOT, 2, 1);
   ASSERT_EQ(nullptr, ts.Peek());
 }
 
@@ -257,6 +275,51 @@ TEST_F(LexerTest, SlashEqual)
   TokenStream ts = Lexer().Lex(cs);
   AssertOpToken(ts, TokenType::SLASH_EQUAL, 1, 1);
   AssertOpToken(ts, TokenType::LEFT_PAREN, 1, 3);
+  ASSERT_EQ(nullptr, ts.Peek());
+}
+
+TEST_F(LexerTest, WhiteSpace)
+{
+  CharStream cs("} \t\r\n{");
+  TokenStream ts = Lexer().Lex(cs);
+  AssertOpToken(ts, TokenType::RIGHT_BRACE, 1, 1);
+  AssertOpToken(ts, TokenType::LEFT_BRACE, 2, 1);
+  ASSERT_EQ(nullptr, ts.Peek());
+}
+
+TEST_F(LexerTest, StringSingleQuote)
+{
+  CharStream cs("'he\"llo\\'there'.");
+  TokenStream ts = Lexer().Lex(cs);
+  AssertTextToken(ts, "he\"llo\\'there", TokenType::STRING, 1, 1);
+  AssertOpToken(ts, TokenType::DOT, 1, 16);
+  ASSERT_EQ(nullptr, ts.Peek());
+}
+
+TEST_F(LexerTest, StringDoubleQuote)
+{
+  CharStream cs("\"he\\\"llo'there\".");
+  TokenStream ts = Lexer().Lex(cs);
+  AssertTextToken(ts, "he\\\"llo'there", TokenType::STRING, 1, 1);
+  AssertOpToken(ts, TokenType::DOT, 1, 16);
+  ASSERT_EQ(nullptr, ts.Peek());
+}
+
+TEST_F(LexerTest, Integer)
+{
+  CharStream cs("1234.");
+  TokenStream ts = Lexer().Lex(cs);
+  AssertTextToken(ts, "1234", TokenType::INTEGER, 1, 1);
+  AssertOpToken(ts, TokenType::DOT, 1, 5);
+  ASSERT_EQ(nullptr, ts.Peek());
+}
+
+TEST_F(LexerTest, Float)
+{
+  CharStream cs("1234.54.");
+  TokenStream ts = Lexer().Lex(cs);
+  AssertTextToken(ts, "1234.54", TokenType::FLOAT, 1, 1);
+  AssertOpToken(ts, TokenType::DOT, 1, 8);
   ASSERT_EQ(nullptr, ts.Peek());
 }
 

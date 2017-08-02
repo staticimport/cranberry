@@ -21,7 +21,7 @@ enum class TokenType
   SLASH, SLASH_EQUAL,
 
   // literals
-  IDENTIFIER, STRING, NUMBER,
+  IDENTIFIER, STRING, INTEGER, FLOAT,
 
   // keywords
   AND, BOOL, CATCH, DEF, ELSE, ELSE_IF, FCN, FLT, IF, INT, NEXT, NIL,
