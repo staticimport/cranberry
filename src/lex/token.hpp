@@ -8,7 +8,8 @@ namespace CBC {
 enum class TokenType
 {
   // single-char tokens
-  LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, DOT,
+  LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, LEFT_BRACKET, RIGHT_BRACKET,
+  COMMA, DOT, COLON,
 
   // multi-char tokens
   BANG, BANG_EQUAL,
@@ -25,7 +26,7 @@ enum class TokenType
 
   // keywords
   AND, BOOL, CATCH, DEF, ELSE, ELSE_IF, FCN, FLT, IF, INT, NEXT, NIL,
-  NO, NOT, OR, SELF, STR, SUPER, UNLESS, UNTIL, WHILE, YES, YIELD, VAL, VAR,
+  NO, NOT, OR, SELF, STR, SUPER, TRY, UNLESS, UNTIL, WHILE, YES, YIELD, VAL, VAR,
 };
 
 struct Token
@@ -35,8 +36,8 @@ struct Token
   int const mLineNum;
   int const mColumn;
 
-  Token(TokenType const&, int linenum, int col);
-  Token(TokenType const&, std::string&& text, int linenum, int col);
+  Token(TokenType, int linenum, int col);
+  Token(TokenType, std::string&& text, int linenum, int col);
 };
 
 struct TokenStream
@@ -54,11 +55,11 @@ private:
 
 
 /* implementation */
-Token::Token(TokenType const& type, int linenum, int col)
+Token::Token(TokenType type, int linenum, int col)
   : mType(type), mText(), mLineNum(linenum), mColumn(col)
 {}
 
-Token::Token(TokenType const& type, std::string&& text, int linenum, int col)
+Token::Token(TokenType type, std::string&& text, int linenum, int col)
   : mType(type), mText(text), mLineNum(linenum), mColumn(col)
 {}
 

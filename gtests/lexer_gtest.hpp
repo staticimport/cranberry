@@ -27,6 +27,24 @@ protected:
     EXPECT_EQ(line, t->mLineNum);
     EXPECT_EQ(col,  t->mColumn);
   }
+
+  void TestKeyword(std::string const& s, TokenType type)
+  {
+    CharStream cs(s + ".");
+    TokenStream ts = Lexer().Lex(cs);
+    AssertTextToken(ts, "", type, 1, 1);
+    AssertOpToken(ts, TokenType::DOT, 1, s.length() + 1);
+    ASSERT_EQ(nullptr, ts.Peek());
+  }
+
+  void TestIdentifier(std::string const& s)
+  {
+    CharStream cs(s + ".");
+    TokenStream ts = Lexer().Lex(cs);
+    AssertTextToken(ts, s, TokenType::IDENTIFIER, 1, 1);
+    AssertOpToken(ts, TokenType::DOT, 1, s.length() + 1);
+    ASSERT_EQ(nullptr, ts.Peek());
+  }
 };
 
 TEST_F(LexerTest, Empty)
@@ -72,6 +90,24 @@ TEST_F(LexerTest, RightBrace)
   ASSERT_EQ(nullptr, ts.Peek());
 }
 
+TEST_F(LexerTest, LeftBracket)
+{
+  CharStream cs("[[");
+  TokenStream ts = Lexer().Lex(cs);
+  AssertOpToken(ts, TokenType::LEFT_BRACKET, 1, 1);
+  AssertOpToken(ts, TokenType::LEFT_BRACKET, 1, 2);
+  ASSERT_EQ(nullptr, ts.Peek());
+}
+
+TEST_F(LexerTest, RightBracket)
+{
+  CharStream cs("]]");
+  TokenStream ts = Lexer().Lex(cs);
+  AssertOpToken(ts, TokenType::RIGHT_BRACKET, 1, 1);
+  AssertOpToken(ts, TokenType::RIGHT_BRACKET, 1, 2);
+  ASSERT_EQ(nullptr, ts.Peek());
+}
+
 TEST_F(LexerTest, Comma)
 {
   CharStream cs(",,");
@@ -87,6 +123,15 @@ TEST_F(LexerTest, Dot)
   TokenStream ts = Lexer().Lex(cs);
   AssertOpToken(ts, TokenType::DOT, 1, 1);
   AssertOpToken(ts, TokenType::DOT, 1, 2);
+  ASSERT_EQ(nullptr, ts.Peek());
+}
+
+TEST_F(LexerTest, Colon)
+{
+  CharStream cs("::");
+  TokenStream ts = Lexer().Lex(cs);
+  AssertOpToken(ts, TokenType::COLON, 1, 1);
+  AssertOpToken(ts, TokenType::COLON, 1, 2);
   ASSERT_EQ(nullptr, ts.Peek());
 }
 
@@ -321,6 +366,44 @@ TEST_F(LexerTest, Float)
   AssertTextToken(ts, "1234.54", TokenType::FLOAT, 1, 1);
   AssertOpToken(ts, TokenType::DOT, 1, 8);
   ASSERT_EQ(nullptr, ts.Peek());
+}
+
+TEST_F(LexerTest, Identifiers)
+{
+  TestIdentifier("x");
+  TestIdentifier("Hello?");
+  TestIdentifier("hell_no");
+  TestIdentifier("@YES");
+  TestIdentifier("$WhyNot?");
+}
+
+TEST_F(LexerTest, Keywords)
+{
+  TestKeyword("and", TokenType::AND);
+  TestKeyword("bool", TokenType::BOOL);
+  TestKeyword("catch", TokenType::CATCH);
+  TestKeyword("def", TokenType::DEF);
+  TestKeyword("else", TokenType::ELSE);
+  TestKeyword("elif", TokenType::ELSE_IF);
+  TestKeyword("fcn", TokenType::FCN);
+  TestKeyword("flt", TokenType::FLT);
+  TestKeyword("if", TokenType::IF);
+  TestKeyword("int", TokenType::INT);
+  TestKeyword("next", TokenType::NEXT);
+  TestKeyword("NIL", TokenType::NIL);
+  TestKeyword("no", TokenType::NO);
+  TestKeyword("not", TokenType::NOT);
+  TestKeyword("or", TokenType::OR);
+  TestKeyword("self", TokenType::SELF);
+  TestKeyword("str", TokenType::STR);
+  TestKeyword("super", TokenType::SUPER);
+  TestKeyword("try", TokenType::TRY);
+  TestKeyword("unless", TokenType::UNLESS);
+  TestKeyword("until", TokenType::UNTIL);
+  TestKeyword("yes", TokenType::YES);
+  TestKeyword("yield", TokenType::YIELD);
+  TestKeyword("val", TokenType::VAL);
+  TestKeyword("var", TokenType::VAR);
 }
 
 }}

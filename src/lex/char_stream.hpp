@@ -10,6 +10,7 @@ class CharStream
 public:
   CharStream(std::istream&);
   CharStream(char const*);
+  CharStream(std::string const&);
   ~CharStream();
 
   bool    CanPop(void) const;
@@ -42,13 +43,20 @@ CharStream::CharStream(std::istream& in)
 }
 
 CharStream::CharStream(char const* s)
-  : mBuffer()
 {
   size_t const len = strlen(s);
   mBuffer = static_cast<char*>(malloc(len));
   memcpy(mBuffer, s, len);
   mHead   = mBuffer;
   mTail   = mBuffer + len;
+}
+
+CharStream::CharStream(std::string const& s)
+{
+  mBuffer = static_cast<char*>(malloc(s.length()));
+  memcpy(mBuffer, s.c_str(), s.length());
+  mHead   = mBuffer;
+  mTail   = mBuffer + s.length();
 }
 
 CharStream::~CharStream()

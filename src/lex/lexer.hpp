@@ -16,6 +16,7 @@ private:
   static bool DetermineKeyword(std::string const&, TokenType* out);
 
   void NextToken(CharStream&, Tokens&);
+  void ParseKeywordOrIdentifier(CharStream&, Tokens&);
   void ParseNumber(CharStream&, Tokens&);
   void ParseString(CharStream&, char terminator, Tokens&);
   void SkipToNextLine(CharStream&);
@@ -40,12 +41,15 @@ void Lexer::NextToken(CharStream& cs, Tokens& tokens)
   switch (c)
   {
   // single-char operators
-  case '(':   tokens.emplace_back(TokenType::LEFT_PAREN,  mLineNum, mColNum); break;
-  case ')':   tokens.emplace_back(TokenType::RIGHT_PAREN, mLineNum, mColNum); break;
-  case '{':   tokens.emplace_back(TokenType::LEFT_BRACE,  mLineNum, mColNum); break;
-  case '}':   tokens.emplace_back(TokenType::RIGHT_BRACE, mLineNum, mColNum); break;
-  case ',':   tokens.emplace_back(TokenType::COMMA,       mLineNum, mColNum); break;
-  case '.':   tokens.emplace_back(TokenType::DOT,         mLineNum, mColNum); break;
+  case '(':   tokens.emplace_back(TokenType::LEFT_PAREN,    mLineNum, mColNum); break;
+  case ')':   tokens.emplace_back(TokenType::RIGHT_PAREN,   mLineNum, mColNum); break;
+  case '{':   tokens.emplace_back(TokenType::LEFT_BRACE,    mLineNum, mColNum); break;
+  case '}':   tokens.emplace_back(TokenType::RIGHT_BRACE,   mLineNum, mColNum); break;
+  case '[':   tokens.emplace_back(TokenType::LEFT_BRACKET,  mLineNum, mColNum); break;
+  case ']':   tokens.emplace_back(TokenType::RIGHT_BRACKET, mLineNum, mColNum); break;
+  case ',':   tokens.emplace_back(TokenType::COMMA,         mLineNum, mColNum); break;
+  case '.':   tokens.emplace_back(TokenType::DOT,           mLineNum, mColNum); break;
+  case ':':   tokens.emplace_back(TokenType::COLON,         mLineNum, mColNum); break;
   case '#':   SkipToNextLine(cs); break;
 
   // multi-char operators
@@ -114,8 +118,40 @@ void Lexer::NextToken(CharStream& cs, Tokens& tokens)
   case '"':   ParseString(cs, '"',  tokens); break;
   case '\'':  ParseString(cs, '\'', tokens); break;
   default:
-    if (isdigit(c)) { cs.Push(); --mColNum; ParseNumber(cs, tokens); break; }
-    DIE("invalid token 0x%02x = '%c'", c, c);
+    cs.Push(); --mColNum;
+    if      (isdigit(c)) { ParseNumber(cs, tokens); break; }
+    else if (isalpha(c) | (c == '@') | (c == '$')) { ParseKeywordOrIdentifier(cs, tokens); break; };
+    DIE("invalid token at %d:%d 0x%02x = '%c'", mLineNum, mColNum, c, c); // TODO: filename
+  }
+}
+
+void Lexer::ParseKeywordOrIdentifier(CharStream& cs, Tokens& tokens)
+{
+  std::ostringstream oss;
+  int const startColNum = mColNum + 1;
+  char c;
+  while (cs.Peek(&c))
+  {
+    if (isalpha(c) | (c == '_') | (c == '?') |
+       (startColNum == (mColNum + 1) & ((c == '@') | (c == '$')))) // starting char only
+    {
+      oss << c;
+      cs.Pop();
+      ++mColNum;
+      if (c == '?') { break; } // ? can only be at end of identifier
+    }
+    else { break; }
+  }
+
+  std::string text = oss.str();
+  TokenType keywordTokenType;
+  if (DetermineKeyword(text, &keywordTokenType))
+  {
+    tokens.emplace_back(keywordTokenType, mLineNum, startColNum);
+  }
+  else
+  {
+    tokens.emplace_back(TokenType::IDENTIFIER, std::move(text), mLineNum, startColNum);
   }
 }
 
@@ -178,7 +214,30 @@ bool Lexer::DetermineKeyword(std::string const& s, TokenType* out)
 {
   static std::unordered_map<std::string, TokenType> KEYWORD_MAP = {
     { "and", TokenType::AND },
-    { "bool", TokenType::BOOL }
+    { "bool", TokenType::BOOL },
+    { "catch", TokenType::CATCH },
+    { "def", TokenType::DEF },
+    { "else", TokenType::ELSE },
+    { "elif", TokenType::ELSE_IF },
+    { "fcn", TokenType::FCN },
+    { "flt", TokenType::FLT },
+    { "if", TokenType::IF },
+    { "int", TokenType::INT },
+    { "next", TokenType::NEXT },
+    { "NIL", TokenType::NIL },
+    { "no", TokenType::NO },
+    { "not", TokenType::NOT },
+    { "or", TokenType::OR },
+    { "self", TokenType::SELF },
+    { "str", TokenType::STR },
+    { "super", TokenType::SUPER },
+    { "try", TokenType::TRY },
+    { "unless", TokenType::UNLESS },
+    { "until", TokenType::UNTIL },
+    { "yes", TokenType::YES },
+    { "yield", TokenType::YIELD },
+    { "val", TokenType::VAL },
+    { "var", TokenType::VAR },
   };
 
   auto iter = KEYWORD_MAP.find(s);
