@@ -1,7 +1,9 @@
 #pragma once
 
+#include "lex/char_stream.hpp"
 #include "lex/token.hpp"
 
+#include <sstream>
 #include <unordered_map>
 
 namespace CBC {
@@ -133,7 +135,7 @@ void Lexer::ParseKeywordOrIdentifier(CharStream& cs, Tokens& tokens)
   while (cs.Peek(&c))
   {
     if (isalpha(c) | (c == '_') | (c == '?') |
-       (startColNum == (mColNum + 1) & ((c == '@') | (c == '$')))) // starting char only
+       ((startColNum == (mColNum + 1)) & ((c == '@') | (c == '$')))) // starting char only
     {
       oss << c;
       cs.Pop();

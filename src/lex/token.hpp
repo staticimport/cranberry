@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.hpp"
+#include <vector>
 
 namespace CBC {
 
@@ -48,6 +49,7 @@ public:
   Token const* Peek(void) const;
   Token const* Pop(void);
   void         Push(void);
+  Token const* TryPop(void); // TODO: do we need normal Pop?
 private:
   std::vector<Token> mTokens;
   size_t mIndex;
@@ -67,6 +69,7 @@ TokenStream::TokenStream(std::vector<Token>&& tokens)
   : mTokens(tokens), mIndex(0)
 {}
 
+PURE_FCN
 Token const* TokenStream::Peek(void) const
 {
   return mIndex < mTokens.size() ? &mTokens[mIndex] : nullptr;
@@ -81,6 +84,11 @@ void TokenStream::Push(void)
 {
   ASSERT(mIndex > 0);
   mIndex -= 1;
+}
+
+Token const* TokenStream::TryPop(void)
+{
+  return mIndex < mTokens.size() ? &mTokens[mIndex++] : nullptr;
 }
 
 }

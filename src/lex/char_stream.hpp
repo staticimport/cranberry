@@ -64,6 +64,7 @@ CharStream::~CharStream()
   free(mBuffer);
 }
 
+PURE_FCN
 bool CharStream::CanPop(void) const
 {
   return mHead < mTail;
@@ -93,6 +94,7 @@ bool CharStream::TryPop(char c)
   else                          { return false; }
 }
 
+PURE_FCN
 size_t CharStream::TotalSize(void) const
 {
   return mTail - mBuffer;

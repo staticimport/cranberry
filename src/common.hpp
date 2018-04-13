@@ -14,7 +14,7 @@
           if (!(check)) { \
             throw std::runtime_error(CBC::FormatStr("Assertion `" #check "' failed. " __VA_ARGS__)); \
           } \
-        } while (false) 
+        } while (false)
 #define DIE(...) do { throw std::runtime_error(CBC::FormatStr(__VA_ARGS__)); } while (false)
 
 #ifndef NDEBUG
@@ -30,7 +30,12 @@
 
 namespace CBC
 {
-  
+/* types */
+struct ParseError : public std::runtime_error
+{
+  ParseError(std::string const& what) : std::runtime_error(what.c_str()) {}
+};
+
 /* functionality */
 std::string FormatStr(char const* fmt, ...);
 
