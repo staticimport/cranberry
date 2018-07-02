@@ -1,0 +1,49 @@
+What can we add to C?
+> Namespaces
+> Methods, e.g. list->add(x) instead of list_add(&list, x)
+> Explicit constructor/destructor, e.g. list->init()
+> Better interfaces, but how?
+> No need for function prototypes or ordering
+> optional named arguments
+> better support for testing/mocking without runtime overhead
+> standard library
+
+What to avoid from C++:
+> template code bloat
+> complexity and crazy features
+> implicit funcitonality, e.g. RAII
+
+namespace cb;
+
+ifc hash_functor[T]:
+  fcn hash(:T): i64;
+end
+
+def hash_map[K,V]:
+  fcn init(hash: hash_fcn[K]*);
+  fcn uninit();
+
+  # access
+  fcn get(:K): V;
+end
+
+
+def hash_map[K,V]
+{
+  hash:         hash_fcn[K,V];
+  equals:       equals_fcn[K];
+  buckets:      hash_map_bucket[K,V]*;
+  bucket_count: u64;
+  size:         u64;
+}
+
+fcn hash_map[K,V].create(:hash_fcn[K,V], :equals_fcn[K]);
+fcn hash_map[K,V].destroy();
+fcn hash_map[K,V].insert(key: K, value: V);
+fcn hash_map[K,V].find(key: K): V;
+
+fcn main(): int
+{
+  return 0;
+}
+

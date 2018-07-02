@@ -1,0 +1,6 @@
+
+fcn main(): int
+{
+  return 42;
+}
+

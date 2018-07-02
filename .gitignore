@@ -1,4 +1,5 @@
 **/*.swp
 bin/
+ctests/bin
 gtests/.temp_masterfile.cpp
 
